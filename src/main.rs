@@ -1,9 +1,11 @@
 
-use std::io;
+use std::{io, fmt::format, error::Error};
 
 fn main(){
 
     clear();
+    //Create a vector to store fruits;
+    // let mut fruitVec:Vec<Fruit> = Vec::new();
 
     let mut loop_bool = true;
     while loop_bool{
@@ -58,12 +60,25 @@ fn MainMenu(option: char) -> bool{
 
 //Callback functions for CRUD related actions, Returns bool wether or not to continue the main loop; 
 fn create_fruit() -> bool{
+
+    //Colect the name of the fruit
     println!("Create Fruit\n------------\nWhat is the name of your fruit?");
     let mut name = String::new();
     io::stdin().read_line(&mut name).expect("Your fruit name was invalid");
     
-    println!("What color has your fruit\n--------------\n0 - Red, 1 - Green, 2 - ");
+    //Collect the color of the fruit;
+    println!("What color has your fruit\n--------------\n0 - Red, 1 - Green, 2 - Yellow, 3 - Orange");
+    let mut input: String = String::new();
+    io::stdin().read_line(&mut input).expect("Failed to read your line");
+    let col:Color = Color::from_i32(input.trim().parse().unwrap()).unwrap();
+    
+    //Instatiate the fruit with collected parameters, 
+    let newFruit = Fruit {
+        name:name,
+        color:col
+    };
 
+    println!("{}", newFruit.to_string());
     true
 }
 fn read_fruits()-> bool{
@@ -86,17 +101,44 @@ fn delete_fruit()-> bool{
 struct Fruit {
     name : String,
     color : Color,
-    has_wedges : bool,
-    has_core : bool
+    // has_wedges : bool,
+    // has_core : bool
 }
 impl Fruit{
     fn eat_the_fruit(&self)-> String{
         "The fruit tastes nothing".to_string()
     }
+    fn to_string(&self)->String{
+        format!("{}: -Color:{}", self.name, self.color).to_string()
+    }
 }
 enum Color{
-    Red,
-    Green,
-    Yellow, 
-    Orange
+    Red = 0,
+    Green = 1,
+    Yellow = 2, 
+    Orange = 3
+}
+impl Color {
+    fn from_i32(n:i32)->Result<Color, i32>{
+        use Color::*;
+        match n{
+            0=>Ok(Red),
+            1=>Ok(Green),
+            2=>Ok(Yellow),
+            3=>Ok(Orange),
+            _=>Err(n)
+        }
+    }   
+}
+//Fuck this
+impl std::fmt::Display for Color{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self{
+            Color::Red=>Ok("Red"),
+            Color::Green =>Ok("Green"),
+            Color::Yellow=>Ok("Yellow"),
+            Color::Orange=>Ok("Orange"),
+            _=>Err(self)
+        }
+    }
 }
